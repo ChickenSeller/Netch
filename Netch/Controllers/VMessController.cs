@@ -115,8 +115,15 @@ namespace Netch.Controllers
                                 path = server.Path == "" ? "/" : server.Path
                             } : null,
                             tlsSettings = new Models.Information.VMess.TLSSettings()
+                            {
+                                allowInsecure = true,
+                                serverName = server.Host == "" ? server.Hostname : server.Host
+                            }
                         },
                         mux = new Models.Information.VMess.OutboundMux()
+                        {
+                            enabled = server.UseMux
+                        }
                     },
                     new Models.Information.VMess.Outbounds()
                     {

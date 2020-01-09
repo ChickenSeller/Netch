@@ -50,6 +50,8 @@
             this.AboutToolStripButton = new System.Windows.Forms.ToolStripButton();
             this.VersionLabel = new System.Windows.Forms.ToolStripLabel();
             this.ConfigurationGroupBox = new System.Windows.Forms.GroupBox();
+            this.ProfileNameText = new System.Windows.Forms.TextBox();
+            this.ProfileLabel = new System.Windows.Forms.Label();
             this.SpeedPictureBox = new System.Windows.Forms.PictureBox();
             this.DeletePictureBox = new System.Windows.Forms.PictureBox();
             this.EditPictureBox = new System.Windows.Forms.PictureBox();
@@ -68,6 +70,8 @@
             this.ShowMainFormToolStripButton = new System.Windows.Forms.ToolStripMenuItem();
             this.ExitToolStripButton = new System.Windows.Forms.ToolStripMenuItem();
             this.SettingsButton = new System.Windows.Forms.Button();
+            this.ProfileGroupBox = new System.Windows.Forms.GroupBox();
+            this.ProfileTable = new System.Windows.Forms.TableLayoutPanel();
             this.MenuStrip.SuspendLayout();
             this.ConfigurationGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.SpeedPictureBox)).BeginInit();
@@ -75,6 +79,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.EditPictureBox)).BeginInit();
             this.StatusStrip.SuspendLayout();
             this.NotifyMenu.SuspendLayout();
+            this.ProfileGroupBox.SuspendLayout();
             this.SuspendLayout();
             // 
             // MenuStrip
@@ -240,12 +245,14 @@
             this.VersionLabel.IsLink = true;
             this.VersionLabel.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
             this.VersionLabel.Name = "VersionLabel";
-            this.VersionLabel.Size = new System.Drawing.Size(35, 19);
+            this.VersionLabel.Size = new System.Drawing.Size(32, 19);
             this.VersionLabel.Text = "x.x.x";
             this.VersionLabel.Click += new System.EventHandler(this.VersionLabel_Click);
             // 
             // ConfigurationGroupBox
             // 
+            this.ConfigurationGroupBox.Controls.Add(this.ProfileNameText);
+            this.ConfigurationGroupBox.Controls.Add(this.ProfileLabel);
             this.ConfigurationGroupBox.Controls.Add(this.SpeedPictureBox);
             this.ConfigurationGroupBox.Controls.Add(this.DeletePictureBox);
             this.ConfigurationGroupBox.Controls.Add(this.EditPictureBox);
@@ -255,10 +262,26 @@
             this.ConfigurationGroupBox.Controls.Add(this.ServerLabel);
             this.ConfigurationGroupBox.Location = new System.Drawing.Point(12, 28);
             this.ConfigurationGroupBox.Name = "ConfigurationGroupBox";
-            this.ConfigurationGroupBox.Size = new System.Drawing.Size(584, 86);
+            this.ConfigurationGroupBox.Size = new System.Drawing.Size(584, 113);
             this.ConfigurationGroupBox.TabIndex = 1;
             this.ConfigurationGroupBox.TabStop = false;
             this.ConfigurationGroupBox.Text = "Configuration";
+            // 
+            // ProfileNameText
+            // 
+            this.ProfileNameText.Location = new System.Drawing.Point(97, 83);
+            this.ProfileNameText.Name = "ProfileNameText";
+            this.ProfileNameText.Size = new System.Drawing.Size(415, 23);
+            this.ProfileNameText.TabIndex = 11;
+            // 
+            // ProfileLabel
+            // 
+            this.ProfileLabel.AutoSize = true;
+            this.ProfileLabel.Location = new System.Drawing.Point(6, 86);
+            this.ProfileLabel.Name = "ProfileLabel";
+            this.ProfileLabel.Size = new System.Drawing.Size(84, 17);
+            this.ProfileLabel.TabIndex = 10;
+            this.ProfileLabel.Text = "Profile Name";
             // 
             // SpeedPictureBox
             // 
@@ -344,7 +367,7 @@
             this.UsedBandwidthLabel,
             this.DownloadSpeedLabel,
             this.UploadSpeedLabel});
-            this.StatusStrip.Location = new System.Drawing.Point(0, 154);
+            this.StatusStrip.Location = new System.Drawing.Point(0, 254);
             this.StatusStrip.Name = "StatusStrip";
             this.StatusStrip.Size = new System.Drawing.Size(608, 22);
             this.StatusStrip.SizingGrip = false;
@@ -380,7 +403,7 @@
             // 
             // ControlButton
             // 
-            this.ControlButton.Location = new System.Drawing.Point(521, 120);
+            this.ControlButton.Location = new System.Drawing.Point(521, 219);
             this.ControlButton.Name = "ControlButton";
             this.ControlButton.Size = new System.Drawing.Size(75, 27);
             this.ControlButton.TabIndex = 3;
@@ -422,19 +445,46 @@
             // 
             // SettingsButton
             // 
-            this.SettingsButton.Location = new System.Drawing.Point(12, 120);
+            this.SettingsButton.Location = new System.Drawing.Point(12, 219);
             this.SettingsButton.Name = "SettingsButton";
-            this.SettingsButton.Size = new System.Drawing.Size(72, 24);
+            this.SettingsButton.Size = new System.Drawing.Size(72, 27);
             this.SettingsButton.TabIndex = 4;
             this.SettingsButton.Text = "Settings";
             this.SettingsButton.UseVisualStyleBackColor = true;
             this.SettingsButton.Click += new System.EventHandler(this.SettingsButton_Click);
             // 
+            // ProfileGroupBox
+            // 
+            this.ProfileGroupBox.Controls.Add(this.ProfileTable);
+            this.ProfileGroupBox.Location = new System.Drawing.Point(12, 147);
+            this.ProfileGroupBox.Name = "ProfileGroupBox";
+            this.ProfileGroupBox.Size = new System.Drawing.Size(584, 65);
+            this.ProfileGroupBox.TabIndex = 13;
+            this.ProfileGroupBox.TabStop = false;
+            this.ProfileGroupBox.Text = "Profiles";
+            // 
+            // ProfileTable
+            // 
+            this.ProfileTable.AutoSize = true;
+            this.ProfileTable.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.ProfileTable.ColumnCount = 2;
+            this.ProfileTable.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.ProfileTable.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.ProfileTable.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.ProfileTable.Location = new System.Drawing.Point(3, 19);
+            this.ProfileTable.Name = "ProfileTable";
+            this.ProfileTable.RowCount = 1;
+            this.ProfileTable.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.ProfileTable.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.ProfileTable.Size = new System.Drawing.Size(578, 43);
+            this.ProfileTable.TabIndex = 0;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.ClientSize = new System.Drawing.Size(608, 176);
+            this.ClientSize = new System.Drawing.Size(608, 276);
+            this.Controls.Add(this.ProfileGroupBox);
             this.Controls.Add(this.SettingsButton);
             this.Controls.Add(this.ControlButton);
             this.Controls.Add(this.StatusStrip);
@@ -460,6 +510,8 @@
             this.StatusStrip.ResumeLayout(false);
             this.StatusStrip.PerformLayout();
             this.NotifyMenu.ResumeLayout(false);
+            this.ProfileGroupBox.ResumeLayout(false);
+            this.ProfileGroupBox.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -505,5 +557,9 @@
         private System.Windows.Forms.ToolStripStatusLabel UploadSpeedLabel;
         private System.Windows.Forms.ToolStripStatusLabel DownloadSpeedLabel;
         private System.Windows.Forms.ToolStripMenuItem CleanDNSCacheToolStripMenuItem;
+        private System.Windows.Forms.Label ProfileLabel;
+        private System.Windows.Forms.TextBox ProfileNameText;
+        private System.Windows.Forms.GroupBox ProfileGroupBox;
+        private System.Windows.Forms.TableLayoutPanel ProfileTable;
     }
 }

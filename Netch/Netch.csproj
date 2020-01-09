@@ -293,6 +293,7 @@
     <Compile Include="Models\GitHubRelease\VersionUtil.cs" />
     <Compile Include="Models\LegacyServer.cs" />
     <Compile Include="Models\LegacySetting.cs" />
+    <Compile Include="Models\Profile.cs" />
     <Compile Include="NativeMethods.cs" />
     <Compile Include="Netch.cs" />
     <Compile Include="Models\Information\VMess.cs" />
