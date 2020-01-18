@@ -114,7 +114,7 @@ namespace Netch.Controllers
                 };
                 Instance.Start();
                 // 创建默认路由
-                if (!NativeMethods.CreateRoute("0.0.0.0", 0, Global.Settings.TUNTAP.Gateway, Global.TUNTAP.Index, 10))
+                if (!NativeMethods.CreateRoute("0.0.0.0", 0, Global.Settings.TUNTAP.Gateway, Global.TUNTAP.Index, 0))
                 {
                     State = Models.State.Stopped;
 
