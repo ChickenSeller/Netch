@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Netch.Forms;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
@@ -25,6 +26,7 @@ namespace Netch.Controllers
         /// <returns>是否启动成功</returns>
         public bool Start(Models.Server server, Models.Mode mode)
         {
+            MainForm.Instance.StatusText($"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Starting ShadowsocksR")}");
             if (!File.Exists("bin\\ShadowsocksR.exe"))
             {
                 return false;
@@ -34,21 +36,21 @@ namespace Netch.Controllers
             Instance.StartInfo.FileName = "bin\\ShadowsocksR.exe";
             Instance.StartInfo.Arguments = $"-s {server.Hostname} -p {server.Port} -k \"{server.Password}\" -m {server.EncryptMethod}";
 
-            if (!String.IsNullOrEmpty(server.Protocol))
+            if (!string.IsNullOrEmpty(server.Protocol))
             {
                 Instance.StartInfo.Arguments += $" -O {server.Protocol}";
 
-                if (!String.IsNullOrEmpty(server.ProtocolParam))
+                if (!string.IsNullOrEmpty(server.ProtocolParam))
                 {
                     Instance.StartInfo.Arguments += $" -G \"{server.ProtocolParam}\"";
                 }
             }
 
-            if (!String.IsNullOrEmpty(server.OBFS))
+            if (!string.IsNullOrEmpty(server.OBFS))
             {
                 Instance.StartInfo.Arguments += $" -o {server.OBFS}";
 
-                if (!String.IsNullOrEmpty(server.OBFSParam))
+                if (!string.IsNullOrEmpty(server.OBFSParam))
                 {
                     Instance.StartInfo.Arguments += $" -g \"{server.OBFSParam}\"";
                 }
@@ -68,7 +70,7 @@ namespace Netch.Controllers
             Instance.Start();
             Instance.BeginOutputReadLine();
             Instance.BeginErrorReadLine();
-            for (int i = 0; i < 1000; i++)
+            for (var i = 0; i < 1000; i++)
             {
                 Thread.Sleep(10);
 
@@ -111,7 +113,7 @@ namespace Netch.Controllers
 
         public void OnOutputDataReceived(object sender, DataReceivedEventArgs e)
         {
-            if (!String.IsNullOrWhiteSpace(e.Data))
+            if (!string.IsNullOrWhiteSpace(e.Data))
             {
                 File.AppendAllText("logging\\shadowsocksr.log", $"{e.Data}\r\n");
 

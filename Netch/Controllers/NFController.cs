@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Netch.Forms;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.ServiceProcess;
@@ -19,7 +20,7 @@ namespace Netch.Controllers
         /// </summary>
         /// <param name="upload">上传</param>
         /// <param name="download">下载</param>
-        public delegate void BandwidthUpdateHandler(long upload, Int64 download);
+        public delegate void BandwidthUpdateHandler(long upload, long download);
 
         /// <summary>
         ///     进程实例
@@ -39,13 +40,14 @@ namespace Netch.Controllers
         /// <returns>是否成功</returns>
         public bool Start(Models.Server server, Models.Mode mode)
         {
+            MainForm.Instance.StatusText($"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Starting Redirector")}");
             if (!File.Exists("bin\\Redirector.exe"))
             {
                 return false;
             }
 
             // 生成驱动文件路径
-            var driver = String.Format("{0}\\drivers\\netfilter2.sys", Environment.SystemDirectory);
+            var driver = string.Format("{0}\\drivers\\netfilter2.sys", Environment.SystemDirectory);
 
             // 检查驱动是否存在
             if (!File.Exists(driver))
@@ -98,6 +100,7 @@ namespace Netch.Controllers
                 var service = new ServiceController("netfilter2");
                 if (service.Status == ServiceControllerStatus.Stopped)
                 {
+                    MainForm.Instance.StatusText($"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Starting netfilter2 Service")}");
                     service.Start();
                 }
             }
@@ -114,6 +117,8 @@ namespace Netch.Controllers
             }
 
             var processes = "";
+
+            mode.Rule.Add("NTT.exe");
             foreach (var proc in mode.Rule)
             {
                 processes += proc;
@@ -124,13 +129,12 @@ namespace Netch.Controllers
             Instance = MainController.GetProcess();
             Instance.StartInfo.FileName = "bin\\Redirector.exe";
 
-            var FallBackArg = "";
+            var fallback = "";
 
             if (server.Type != "Socks5")
             {
-                FallBackArg = $"-r 127.0.0.1:{Global.Settings.Socks5LocalPort} -p \"{processes}\"";
+                fallback = $"-r 127.0.0.1:{Global.Settings.Socks5LocalPort} -p \"{processes}\"";
             }
-
             else
             {
                 var result = Utils.DNS.Lookup(server.Hostname);
@@ -140,15 +144,15 @@ namespace Netch.Controllers
                     return false;
                 }
 
-                FallBackArg = $"-r {result.ToString()}:{server.Port} -p \"{processes}\"";
+                fallback = $"-r {result}:{server.Port} -p \"{processes}\"";
 
-                if (!String.IsNullOrWhiteSpace(server.Username) && !String.IsNullOrWhiteSpace(server.Password))
+                if (!string.IsNullOrWhiteSpace(server.Username) && !string.IsNullOrWhiteSpace(server.Password))
                 {
-                    FallBackArg += $" -username \"{server.Username}\" -password \"{server.Password}\"";
-                } 
+                    fallback += $" -username \"{server.Username}\" -password \"{server.Password}\"";
+                }
             }
 
-            Instance.StartInfo.Arguments = FallBackArg + $" -t {Global.Settings.RedirectorTCPPort}";
+            Instance.StartInfo.Arguments = fallback + $" -t {Global.Settings.RedirectorTCPPort}";
             Instance.OutputDataReceived += OnOutputDataReceived;
             Instance.ErrorDataReceived += OnOutputDataReceived;
             State = Models.State.Starting;
@@ -157,7 +161,7 @@ namespace Netch.Controllers
             Instance.BeginErrorReadLine();
 
             var IsFallback = false;
-            for (int i = 0; i < 1000; i++)
+            for (var i = 0; i < 1000; i++)
             {
                 Thread.Sleep(10);
 
@@ -173,7 +177,7 @@ namespace Netch.Controllers
                         IsFallback = true;
                         Stop();
                         Utils.Logging.Info($"尝试去除 \"-t {Global.Settings.RedirectorTCPPort}\" 参数后启动 \"bin\\Redirector.exe\"");
-                        Instance.StartInfo.Arguments = FallBackArg;
+                        Instance.StartInfo.Arguments = fallback;
                         Utils.Logging.Info($"当前 \"bin\\Redirector.exe\" 启动参数为 \"{Instance.StartInfo.Arguments}\"");
                         Global.Settings.RedirectorTCPPort = 2800;
                         Instance.CancelOutputRead();
@@ -220,9 +224,9 @@ namespace Netch.Controllers
 
         public void OnOutputDataReceived(object sender, DataReceivedEventArgs e)
         {
-            if (!String.IsNullOrWhiteSpace(e.Data))
+            if (!string.IsNullOrWhiteSpace(e.Data))
             {
-                File.AppendAllText("logging\\redirector.log", String.Format("{0}\r\n", e.Data));
+                File.AppendAllText("logging\\redirector.log", string.Format("{0}\r\n", e.Data));
 
                 if (State == Models.State.Starting)
                 {
@@ -251,7 +255,7 @@ namespace Netch.Controllers
 
                             if (uploadSplited.Length == 2 && downloadSplited.Length == 2)
                             {
-                                if (long.TryParse(uploadSplited[1], out long upload) && long.TryParse(downloadSplited[1], out long download))
+                                if (long.TryParse(uploadSplited[1], out var upload) && long.TryParse(downloadSplited[1], out var download))
                                 {
                                     Task.Run(() => OnBandwidthUpdated(upload, download));
                                 }

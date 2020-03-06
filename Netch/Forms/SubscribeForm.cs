@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Netch.Models;
+using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 
@@ -17,16 +18,16 @@ namespace Netch.Forms
 
             foreach (var item in Global.Settings.SubscribeLink)
             {
-                if (!String.IsNullOrEmpty(item.UserAgent))
+                if (!string.IsNullOrEmpty(item.UserAgent))
                 {
-                    SubscribeLinkListView.Items.Add(new ListViewItem(new String[] {
+                    SubscribeLinkListView.Items.Add(new ListViewItem(new[] {
                     item.Remark,
                     item.Link,
                     item.UserAgent}));
                 }
                 else
                 {
-                    SubscribeLinkListView.Items.Add(new ListViewItem(new String[] {
+                    SubscribeLinkListView.Items.Add(new ListViewItem(new[] {
                     item.Remark,
                     item.Link,
                     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.90 Safari/537.36"}));
@@ -36,15 +37,16 @@ namespace Netch.Forms
 
         private void SubscribeForm_Load(object sender, EventArgs e)
         {
-            Text = Utils.i18N.Translate("Subscribe");
-            RemarkColumnHeader.Text = Utils.i18N.Translate("Remark");
-            LinkColumnHeader.Text = Utils.i18N.Translate("Link");
-            UseSelectedServerCheckBox.Text = Utils.i18N.Translate("Use Selected Server To Update Subscription");
-            DeleteToolStripMenuItem.Text = Utils.i18N.Translate("Delete");
-            RemarkLabel.Text = Utils.i18N.Translate("Remark");
-            LinkLabel.Text = Utils.i18N.Translate("Link");
-            AddButton.Text = Utils.i18N.Translate("Add");
-            ControlButton.Text = Utils.i18N.Translate("Save");
+            Text = Utils.i18N.Translate(Text);
+            RemarkColumnHeader.Text = Utils.i18N.Translate(RemarkColumnHeader.Text);
+            LinkColumnHeader.Text = Utils.i18N.Translate(LinkColumnHeader.Text);
+            UseSelectedServerCheckBox.Text = Utils.i18N.Translate(UseSelectedServerCheckBox.Text);
+            DeleteToolStripMenuItem.Text = Utils.i18N.Translate(DeleteToolStripMenuItem.Text);
+            CopyLinkToolStripMenuItem.Text = Utils.i18N.Translate(CopyLinkToolStripMenuItem.Text);
+            RemarkLabel.Text = Utils.i18N.Translate(RemarkLabel.Text);
+            LinkLabel.Text = Utils.i18N.Translate(LinkLabel.Text);
+            AddButton.Text = Utils.i18N.Translate(AddButton.Text);
+            ControlButton.Text = Utils.i18N.Translate(ControlButton.Text);
 
             UserAgentTextBox.Text = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.90 Safari/537.36";
             UseSelectedServerCheckBox.Checked = Global.Settings.UseProxyToUpdateSubscription;
@@ -56,14 +58,25 @@ namespace Netch.Forms
         {
             Global.MainForm.Show();
         }
-
+        private void CopyLinkToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (SubscribeLinkListView.SelectedItems.Count > 0)
+            {
+                for (var i = SubscribeLinkListView.SelectedItems.Count - 1; i >= 0; i--)
+                {
+                    var item = SubscribeLinkListView.SelectedItems[i];
+                    var link = Global.Settings.SubscribeLink[item.Index];
+                    Clipboard.SetText(link.Link);
+                }
+            }
+        }
         private void DeleteToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (MessageBox.Show(Utils.i18N.Translate("Delete or not ? Will clean up the corresponding group of items in the server list"), Utils.i18N.Translate("Information"), MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK)
             {
                 if (SubscribeLinkListView.SelectedItems.Count > 0)
                 {
-                    for (int i = SubscribeLinkListView.SelectedItems.Count - 1; i >= 0; i--)
+                    for (var i = SubscribeLinkListView.SelectedItems.Count - 1; i >= 0; i--)
                     {
                         var item = SubscribeLinkListView.SelectedItems[i];
                         var link = Global.Settings.SubscribeLink[item.Index];
@@ -89,21 +102,21 @@ namespace Netch.Forms
 
         private void AddButton_Click(object sender, EventArgs e)
         {
-            if (!String.IsNullOrWhiteSpace(RemarkTextBox.Text))
+            if (!string.IsNullOrWhiteSpace(RemarkTextBox.Text))
             {
-                if (!String.IsNullOrWhiteSpace(LinkTextBox.Text))
+                if (!string.IsNullOrWhiteSpace(LinkTextBox.Text))
                 {
                     if (LinkTextBox.Text.StartsWith("HTTP://", StringComparison.OrdinalIgnoreCase) || LinkTextBox.Text.StartsWith("HTTPS://", StringComparison.OrdinalIgnoreCase))
                     {
-                        Global.Settings.SubscribeLink.Add(new Models.SubscribeLink()
+                        Global.Settings.SubscribeLink.Add(new Models.SubscribeLink
                         {
                             Remark = RemarkTextBox.Text,
                             Link = LinkTextBox.Text,
                             UserAgent = UserAgentTextBox.Text
                         });
 
-                        RemarkTextBox.Text = String.Empty;
-                        LinkTextBox.Text = String.Empty;
+                        RemarkTextBox.Text = string.Empty;
+                        LinkTextBox.Text = string.Empty;
                         UserAgentTextBox.Text = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.90 Safari/537.36";
 
                         InitSubscribeLink();

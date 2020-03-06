@@ -13,9 +13,9 @@ namespace Netch.Forms
 
         private void AboutForm_Load(object sender, EventArgs e)
         {
-            Text = Utils.i18N.Translate("About");
-            ChannelLabel.Text = Utils.i18N.Translate("Telegram Channel");
-            SponsorGroupBox.Text = Utils.i18N.Translate("Sponsor");
+            Text = Utils.i18N.Translate(Text);
+            ChannelLabel.Text = Utils.i18N.Translate(ChannelLabel.Text);
+            SponsorGroupBox.Text = Utils.i18N.Translate(SponsorGroupBox.Text);
         }
 
         private void AboutForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -30,12 +30,12 @@ namespace Netch.Forms
 
         private void ChannelLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            Process.Start("https://t.me/NetchX");
+            Process.Start("https://t.me/Netch");
         }
 
         private void SponsorPictureBox_Click(object sender, EventArgs e)
         {
-            Process.Start("https://n3ro.host/register?ref=530");
+            Process.Start("https://www.mansora.co");
         }
     }
 }

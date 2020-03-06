@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.WindowsAPICodePack.Dialogs;
+using System;
 using System.IO;
 using System.Windows.Forms;
 
@@ -6,22 +7,56 @@ namespace Netch.Forms.Mode
 {
     public partial class Process : Form
     {
+        //用于判断当前窗口是否为编辑模式
+        private Boolean EditMode = false;
+        //被编辑模式坐标
+        private Models.Mode EditMode_Old = null;
+        /// <summary>
+		///		编辑模式
+		/// </summary>
+		/// <param name="mode">模式</param>
+        public Process(Models.Mode mode)
+        {
+
+            InitializeComponent();
+
+            CheckForIllegalCrossThreadCalls = false;
+
+            EditMode_Old = mode;
+            this.Text = "Edit Process Mode";
+            //循环填充已有规则
+            mode.Rule.ForEach(i => RuleListBox.Items.Add(i));
+
+            EditMode = true;
+            StaySameButton.Enabled = false;
+            TimeDataButton.Enabled = false;
+            FilenameTextBox.Enabled = false;
+            FilenameLabel.Enabled = false;
+            UseCustomFilenameBox.Enabled = false;
+
+            FilenameTextBox.Text = mode.FileName;
+            RemarkTextBox.Text = mode.Remark;
+
+        }
         public Process()
         {
             InitializeComponent();
 
             CheckForIllegalCrossThreadCalls = false;
+
+            EditMode = false;
+            EditMode_Old = null;
         }
 
         /// <summary>
 		///		扫描目录
 		/// </summary>
 		/// <param name="DirName">路径</param>
-		public void ScanDirectory(String DirName)
+		public void ScanDirectory(string DirName)
         {
             try
             {
-                DirectoryInfo RDirInfo = new DirectoryInfo(DirName);
+                var RDirInfo = new DirectoryInfo(DirName);
                 if (!RDirInfo.Exists)
                 {
                     return;
@@ -32,17 +67,17 @@ namespace Netch.Forms.Mode
                 return;
             }
 
-            System.Collections.Generic.Stack<string> DirStack = new System.Collections.Generic.Stack<string>();
+            var DirStack = new System.Collections.Generic.Stack<string>();
             DirStack.Push(DirName);
 
             while (DirStack.Count > 0)
             {
-                DirectoryInfo DirInfo = new DirectoryInfo(DirStack.Pop());
-                foreach (DirectoryInfo DirChildInfo in DirInfo.GetDirectories())
+                var DirInfo = new DirectoryInfo(DirStack.Pop());
+                foreach (var DirChildInfo in DirInfo.GetDirectories())
                 {
                     DirStack.Push(DirChildInfo.FullName);
                 }
-                foreach (FileInfo FileChildInfo in DirInfo.GetFiles())
+                foreach (var FileChildInfo in DirInfo.GetFiles())
                 {
                     if (FileChildInfo.Name.EndsWith(".exe") && !RuleListBox.Items.Contains(FileChildInfo.Name))
                     {
@@ -54,16 +89,16 @@ namespace Netch.Forms.Mode
 
         private void ModeForm_Load(object sender, EventArgs e)
         {
-            Text = Utils.i18N.Translate("Create Process Mode");
-            ConfigurationGroupBox.Text = Utils.i18N.Translate("Configuration");
-            RemarkLabel.Text = Utils.i18N.Translate("Remark");
-            FilenameLabel.Text = Utils.i18N.Translate("Filename");
-            UseCustomFilenameBox.Text = Utils.i18N.Translate("Use Custom Filename");
-            StaySameButton.Text = Utils.i18N.Translate("Stay the same");
-            TimeDataButton.Text = Utils.i18N.Translate("Time data");
-            AddButton.Text = Utils.i18N.Translate("Add");
-            ScanButton.Text = Utils.i18N.Translate("Scan");
-            ControlButton.Text = Utils.i18N.Translate("Save");
+            Text = Utils.i18N.Translate(Text);
+            ConfigurationGroupBox.Text = Utils.i18N.Translate(ConfigurationGroupBox.Text);
+            RemarkLabel.Text = Utils.i18N.Translate(RemarkLabel.Text);
+            FilenameLabel.Text = Utils.i18N.Translate(FilenameLabel.Text);
+            UseCustomFilenameBox.Text = Utils.i18N.Translate(UseCustomFilenameBox.Text);
+            StaySameButton.Text = Utils.i18N.Translate(StaySameButton.Text);
+            TimeDataButton.Text = Utils.i18N.Translate(TimeDataButton.Text);
+            AddButton.Text = Utils.i18N.Translate(AddButton.Text);
+            ScanButton.Text = Utils.i18N.Translate(ScanButton.Text);
+            ControlButton.Text = Utils.i18N.Translate(ControlButton.Text);
 
             if (Global.Settings.ModeFileNameType == 0)
             {
@@ -90,9 +125,30 @@ namespace Netch.Forms.Mode
             Global.MainForm.Show();
         }
 
+        /// <summary>
+        /// listBox右键菜单
+        /// </summary>
+        private void RuleListBox_MouseUp(object sender, MouseEventArgs e)
+        {
+            ContextMenuStrip strip = new ContextMenuStrip();
+            strip.Items.Add(Utils.i18N.Translate("Delete"));
+            if (e.Button == MouseButtons.Right)
+            {
+                strip.Show(this.RuleListBox, e.Location);//鼠标右键按下弹出菜单
+                strip.MouseClick += new MouseEventHandler(deleteRule_Click);
+            }
+        }
+        void deleteRule_Click(object sender, EventArgs e)
+        {
+            if (RuleListBox.SelectedIndex != -1)
+            {
+                RuleListBox.Items.RemoveAt(RuleListBox.SelectedIndex);
+            }
+        }
+
         private void AddButton_Click(object sender, EventArgs e)
         {
-            if (!String.IsNullOrWhiteSpace(ProcessNameTextBox.Text))
+            if (!string.IsNullOrWhiteSpace(ProcessNameTextBox.Text))
             {
                 var process = ProcessNameTextBox.Text;
                 if (!process.EndsWith(".exe"))
@@ -105,7 +161,7 @@ namespace Netch.Forms.Mode
                     RuleListBox.Items.Add(process);
                 }
 
-                ProcessNameTextBox.Text = String.Empty;
+                ProcessNameTextBox.Text = string.Empty;
             }
             else
             {
@@ -115,9 +171,16 @@ namespace Netch.Forms.Mode
 
         private void ScanButton_Click(object sender, EventArgs e)
         {
-            var dialog = new FolderSelect.FolderSelectDialog();
-            dialog.Title = Utils.i18N.Translate("Select a folder");
-            if (dialog.ShowDialog(Win32Native.GetForegroundWindow()))
+            var dialog = new CommonOpenFileDialog
+            {
+                IsFolderPicker = true,
+                Multiselect = false,
+                Title = Utils.i18N.Translate("Select a folder"),
+                AddToMostRecentlyUsedList = false,
+                EnsurePathExists = true,
+                NavigateToShortcut = true
+            };
+            if (dialog.ShowDialog(Win32Native.GetForegroundWindow()) == CommonFileDialogResult.Ok)
             {
                 ScanDirectory(dialog.FileName);
                 MessageBox.Show(Utils.i18N.Translate("Scan completed"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -126,43 +189,16 @@ namespace Netch.Forms.Mode
 
         private void ControlButton_Click(object sender, EventArgs e)
         {
-            // 自定义文件名
-            if (UseCustomFilenameBox.Checked)
+            if (EditMode)
             {
-                Global.Settings.ModeFileNameType = 0;
-            }
-            // 使用和备注一致的文件名
-            else if (StaySameButton.Checked)
-            {
-                Global.Settings.ModeFileNameType = 1;
-                FilenameTextBox.Text = RemarkTextBox.Text;
-            }
-            // 使用时间数据作为文件名
-            else
-            {
-                Global.Settings.ModeFileNameType = 2;
-                FilenameTextBox.Text = ((long)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalMilliseconds).ToString();
-            }
-
-            Utils.Configuration.Save();
-
-            if (!String.IsNullOrWhiteSpace(RemarkTextBox.Text))
-            {
-                var ModeFilename = Path.Combine("mode", FilenameTextBox.Text);
-
-                // 如果文件已存在，返回
-                if (File.Exists(ModeFilename + ".txt"))
-                {
-                    MessageBox.Show(Utils.i18N.Translate("File already exists.\n Please Change the filename"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    return;
-                }
+                // 编辑模式
 
                 if (RuleListBox.Items.Count != 0)
                 {
-                    var mode = new Models.Mode()
+                    var mode = new Models.Mode
                     {
                         BypassChina = false,
-                        FileName = ModeFilename,
+                        FileName = FilenameTextBox.Text,
                         Type = 0,
                         Remark = RemarkTextBox.Text
                     };
@@ -170,7 +206,7 @@ namespace Netch.Forms.Mode
                     var text = $"# {RemarkTextBox.Text}, 0\r\n";
                     foreach (var item in RuleListBox.Items)
                     {
-                        var process = item as String;
+                        var process = item as string;
                         mode.Rule.Add(process);
                         text += process + "\r\n";
                     }
@@ -182,11 +218,11 @@ namespace Netch.Forms.Mode
                         Directory.CreateDirectory("mode");
                     }
 
-                    File.WriteAllText(ModeFilename + ".txt", text);
+                    File.WriteAllText(Path.Combine("mode", FilenameTextBox.Text) + ".txt", text);
 
-                    MessageBox.Show(Utils.i18N.Translate("Mode added successfully"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show(Utils.i18N.Translate("Mode updated successfully"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                    Global.MainForm.AddMode(mode);
+                    Global.MainForm.UpdateMode(mode, EditMode_Old);
                     Close();
                 }
                 else
@@ -196,9 +232,84 @@ namespace Netch.Forms.Mode
             }
             else
             {
-                MessageBox.Show(Utils.i18N.Translate("Please enter a mode remark"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
+                // 自定义文件名
+                if (UseCustomFilenameBox.Checked)
+                {
+                    Global.Settings.ModeFileNameType = 0;
+                }
+                // 使用和备注一致的文件名
+                else if (StaySameButton.Checked)
+                {
+                    Global.Settings.ModeFileNameType = 1;
+                    FilenameTextBox.Text = RemarkTextBox.Text;
+                }
+                // 使用时间数据作为文件名
+                else
+                {
+                    Global.Settings.ModeFileNameType = 2;
+                    FilenameTextBox.Text = ((long)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalMilliseconds).ToString();
+                }
 
+                Utils.Configuration.Save();
+
+                if (!string.IsNullOrWhiteSpace(RemarkTextBox.Text))
+                {
+                    if (Global.Settings.ModeFileNameType == 0 && string.IsNullOrWhiteSpace(FilenameTextBox.Text))
+                    {
+                        MessageBox.Show(Utils.i18N.Translate("Please enter a mode filename"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        return;
+                    }
+                    var ModeFilename = Path.Combine("mode", FilenameTextBox.Text);
+
+                    // 如果文件已存在，返回
+                    if (File.Exists(ModeFilename + ".txt"))
+                    {
+                        MessageBox.Show(Utils.i18N.Translate("File already exists.\n Please Change the filename"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        return;
+                    }
+
+                    if (RuleListBox.Items.Count != 0)
+                    {
+                        var mode = new Models.Mode
+                        {
+                            BypassChina = false,
+                            FileName = ModeFilename,
+                            Type = 0,
+                            Remark = RemarkTextBox.Text
+                        };
+
+                        var text = $"# {RemarkTextBox.Text}, 0\r\n";
+                        foreach (var item in RuleListBox.Items)
+                        {
+                            var process = item as string;
+                            mode.Rule.Add(process);
+                            text += process + "\r\n";
+                        }
+
+                        text = text.Substring(0, text.Length - 2);
+
+                        if (!Directory.Exists("mode"))
+                        {
+                            Directory.CreateDirectory("mode");
+                        }
+
+                        File.WriteAllText(ModeFilename + ".txt", text);
+
+                        MessageBox.Show(Utils.i18N.Translate("Mode added successfully"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                        Global.MainForm.AddMode(mode);
+                        Close();
+                    }
+                    else
+                    {
+                        MessageBox.Show(Utils.i18N.Translate("Unable to add empty rule"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                }
+                else
+                {
+                    MessageBox.Show(Utils.i18N.Translate("Please enter a mode remark"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
         }
 
         private void UseCustomFileNameBox_CheckedChanged(object sender, EventArgs e)

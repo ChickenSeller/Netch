@@ -64,6 +64,16 @@ namespace Netch.Models
         public bool StartWhenOpened = false;
 
         /// <summary>
+        ///     是否启动后自动最小化
+        /// </summary>
+        public bool MinimizeWhenStarted = false;
+
+        /// <summary>
+        ///     是否开机启动软件
+        /// </summary>
+        public bool RunAtStartup = false;
+
+        /// <summary>
         ///		是否打开软件时检查更新
         /// </summary>
         public bool CheckUpdateWhenOpened = true;
@@ -107,22 +117,36 @@ namespace Netch.Models
         /// <summary>
         ///     订阅链接列表
         /// </summary>
-        public List<Models.SubscribeLink> SubscribeLink = new List<Models.SubscribeLink>();
+        public List<SubscribeLink> SubscribeLink = new List<SubscribeLink>();
 
         /// <summary>
         ///     服务器列表
         /// </summary>
-        public List<Models.Server> Server = new List<Models.Server>();
+        public List<Server> Server = new List<Server>();
 
         /// <summary>
         ///		全局绕过 IP 列表
         /// </summary>
         public List<string> BypassIPs = new List<string>();
 
-
         /// <summary>
-        /// Saved profiles
+        ///		已保存的快捷配置
         /// </summary>
         public List<Profile> profiles = new List<Profile>();
+
+        /// <summary>
+        ///		快捷配置数量
+        /// </summary>
+        public int ProfileCount = 4;
+
+        /// <summary>
+        ///     STUN测试服务器
+        /// </summary>
+        public string STUN_Server = "stun.stunprotocol.org";
+
+        /// <summary>
+        ///     STUN测试服务器
+        /// </summary>
+        public int STUN_Server_Port = 3478;
     }
 }

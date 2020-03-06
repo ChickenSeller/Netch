@@ -1,4 +1,6 @@
-﻿namespace Netch.Forms
+﻿using Netch.Override;
+
+namespace Netch.Forms
 {
     partial class MainForm
     {
@@ -39,6 +41,7 @@
             this.AddVMessServerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ModeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.CreateProcessModeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.ManageProcessModeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.SubscribeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ManageSubscribeLinksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.UpdateServersFromSubscribeLinksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -50,13 +53,16 @@
             this.AboutToolStripButton = new System.Windows.Forms.ToolStripButton();
             this.VersionLabel = new System.Windows.Forms.ToolStripLabel();
             this.ConfigurationGroupBox = new System.Windows.Forms.GroupBox();
+            this.CopyLinkPictureBox = new System.Windows.Forms.PictureBox();
+            this.DeleteModePictureBox = new System.Windows.Forms.PictureBox();
+            this.EditModePictureBox = new System.Windows.Forms.PictureBox();
             this.ProfileNameText = new System.Windows.Forms.TextBox();
             this.ProfileLabel = new System.Windows.Forms.Label();
             this.SpeedPictureBox = new System.Windows.Forms.PictureBox();
             this.DeletePictureBox = new System.Windows.Forms.PictureBox();
             this.EditPictureBox = new System.Windows.Forms.PictureBox();
             this.ModeLabel = new System.Windows.Forms.Label();
-            this.ModeComboBox = new System.Windows.Forms.ComboBox();
+            this.ModeComboBox = new System.Windows.Forms.SearchComboBox();
             this.ServerComboBox = new System.Windows.Forms.ComboBox();
             this.ServerLabel = new System.Windows.Forms.Label();
             this.StatusStrip = new System.Windows.Forms.StatusStrip();
@@ -72,8 +78,12 @@
             this.SettingsButton = new System.Windows.Forms.Button();
             this.ProfileGroupBox = new System.Windows.Forms.GroupBox();
             this.ProfileTable = new System.Windows.Forms.TableLayoutPanel();
+            this.NatTypeStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.MenuStrip.SuspendLayout();
             this.ConfigurationGroupBox.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.CopyLinkPictureBox)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.DeleteModePictureBox)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.EditModePictureBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.SpeedPictureBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.DeletePictureBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.EditPictureBox)).BeginInit();
@@ -96,7 +106,7 @@
             this.MenuStrip.Location = new System.Drawing.Point(0, 0);
             this.MenuStrip.Name = "MenuStrip";
             this.MenuStrip.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
-            this.MenuStrip.Size = new System.Drawing.Size(608, 26);
+            this.MenuStrip.Size = new System.Drawing.Size(629, 26);
             this.MenuStrip.TabIndex = 0;
             // 
             // ServerToolStripMenuItem
@@ -150,7 +160,8 @@
             // ModeToolStripMenuItem
             // 
             this.ModeToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.CreateProcessModeToolStripMenuItem});
+            this.CreateProcessModeToolStripMenuItem,
+            this.ManageProcessModeToolStripMenuItem});
             this.ModeToolStripMenuItem.Margin = new System.Windows.Forms.Padding(0, 0, 0, 1);
             this.ModeToolStripMenuItem.Name = "ModeToolStripMenuItem";
             this.ModeToolStripMenuItem.Size = new System.Drawing.Size(55, 21);
@@ -159,9 +170,16 @@
             // CreateProcessModeToolStripMenuItem
             // 
             this.CreateProcessModeToolStripMenuItem.Name = "CreateProcessModeToolStripMenuItem";
-            this.CreateProcessModeToolStripMenuItem.Size = new System.Drawing.Size(202, 22);
+            this.CreateProcessModeToolStripMenuItem.Size = new System.Drawing.Size(212, 22);
             this.CreateProcessModeToolStripMenuItem.Text = "Create Process Mode";
             this.CreateProcessModeToolStripMenuItem.Click += new System.EventHandler(this.CreateProcessModeToolStripButton_Click);
+            // 
+            // ManageProcessModeToolStripMenuItem
+            // 
+            this.ManageProcessModeToolStripMenuItem.Name = "ManageProcessModeToolStripMenuItem";
+            this.ManageProcessModeToolStripMenuItem.Size = new System.Drawing.Size(212, 22);
+            this.ManageProcessModeToolStripMenuItem.Text = "Manage Process Mode";
+            this.ManageProcessModeToolStripMenuItem.Click += new System.EventHandler(this.ManageProcessModeToolStripMenuItem_Click);
             // 
             // SubscribeToolStripMenuItem
             // 
@@ -251,6 +269,9 @@
             // 
             // ConfigurationGroupBox
             // 
+            this.ConfigurationGroupBox.Controls.Add(this.CopyLinkPictureBox);
+            this.ConfigurationGroupBox.Controls.Add(this.DeleteModePictureBox);
+            this.ConfigurationGroupBox.Controls.Add(this.EditModePictureBox);
             this.ConfigurationGroupBox.Controls.Add(this.ProfileNameText);
             this.ConfigurationGroupBox.Controls.Add(this.ProfileLabel);
             this.ConfigurationGroupBox.Controls.Add(this.SpeedPictureBox);
@@ -262,16 +283,51 @@
             this.ConfigurationGroupBox.Controls.Add(this.ServerLabel);
             this.ConfigurationGroupBox.Location = new System.Drawing.Point(12, 28);
             this.ConfigurationGroupBox.Name = "ConfigurationGroupBox";
-            this.ConfigurationGroupBox.Size = new System.Drawing.Size(584, 113);
+            this.ConfigurationGroupBox.Size = new System.Drawing.Size(605, 113);
             this.ConfigurationGroupBox.TabIndex = 1;
             this.ConfigurationGroupBox.TabStop = false;
             this.ConfigurationGroupBox.Text = "Configuration";
             // 
+            // CopyLinkPictureBox
+            // 
+            this.CopyLinkPictureBox.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.CopyLinkPictureBox.Image = global::Netch.Properties.Resources.CopyLink;
+            this.CopyLinkPictureBox.Location = new System.Drawing.Point(582, 25);
+            this.CopyLinkPictureBox.Name = "CopyLinkPictureBox";
+            this.CopyLinkPictureBox.Size = new System.Drawing.Size(18, 18);
+            this.CopyLinkPictureBox.TabIndex = 14;
+            this.CopyLinkPictureBox.TabStop = false;
+            this.CopyLinkPictureBox.Click += new System.EventHandler(this.CopyLinkPictureBox_Click);
+            // 
+            // DeleteModePictureBox
+            // 
+            this.DeleteModePictureBox.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.DeleteModePictureBox.Image = global::Netch.Properties.Resources.delete;
+            this.DeleteModePictureBox.Location = new System.Drawing.Point(540, 57);
+            this.DeleteModePictureBox.Name = "DeleteModePictureBox";
+            this.DeleteModePictureBox.Size = new System.Drawing.Size(16, 16);
+            this.DeleteModePictureBox.TabIndex = 13;
+            this.DeleteModePictureBox.TabStop = false;
+            this.DeleteModePictureBox.Click += new System.EventHandler(this.DeleteModePictureBox_Click);
+            // 
+            // EditModePictureBox
+            // 
+            this.EditModePictureBox.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.EditModePictureBox.ErrorImage = global::Netch.Properties.Resources.edit;
+            this.EditModePictureBox.Image = global::Netch.Properties.Resources.edit;
+            this.EditModePictureBox.InitialImage = global::Netch.Properties.Resources.edit;
+            this.EditModePictureBox.Location = new System.Drawing.Point(518, 56);
+            this.EditModePictureBox.Name = "EditModePictureBox";
+            this.EditModePictureBox.Size = new System.Drawing.Size(16, 16);
+            this.EditModePictureBox.TabIndex = 12;
+            this.EditModePictureBox.TabStop = false;
+            this.EditModePictureBox.Click += new System.EventHandler(this.EditModePictureBox_Click);
+            // 
             // ProfileNameText
             // 
-            this.ProfileNameText.Location = new System.Drawing.Point(97, 83);
+            this.ProfileNameText.Location = new System.Drawing.Point(57, 83);
             this.ProfileNameText.Name = "ProfileNameText";
-            this.ProfileNameText.Size = new System.Drawing.Size(415, 23);
+            this.ProfileNameText.Size = new System.Drawing.Size(455, 23);
             this.ProfileNameText.TabIndex = 11;
             // 
             // ProfileLabel
@@ -279,9 +335,9 @@
             this.ProfileLabel.AutoSize = true;
             this.ProfileLabel.Location = new System.Drawing.Point(6, 86);
             this.ProfileLabel.Name = "ProfileLabel";
-            this.ProfileLabel.Size = new System.Drawing.Size(84, 17);
+            this.ProfileLabel.Size = new System.Drawing.Size(45, 17);
             this.ProfileLabel.TabIndex = 10;
-            this.ProfileLabel.Text = "Profile Name";
+            this.ProfileLabel.Text = "Profile";
             // 
             // SpeedPictureBox
             // 
@@ -327,8 +383,8 @@
             // 
             // ModeComboBox
             // 
+            this.ModeComboBox.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
             this.ModeComboBox.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
-            this.ModeComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.ModeComboBox.FormattingEnabled = true;
             this.ModeComboBox.IntegralHeight = false;
             this.ModeComboBox.Location = new System.Drawing.Point(57, 53);
@@ -366,10 +422,11 @@
             this.StatusLabel,
             this.UsedBandwidthLabel,
             this.DownloadSpeedLabel,
-            this.UploadSpeedLabel});
+            this.UploadSpeedLabel,
+            this.NatTypeStatusLabel});
             this.StatusStrip.Location = new System.Drawing.Point(0, 254);
             this.StatusStrip.Name = "StatusStrip";
-            this.StatusStrip.Size = new System.Drawing.Size(608, 22);
+            this.StatusStrip.Size = new System.Drawing.Size(629, 22);
             this.StatusStrip.SizingGrip = false;
             this.StatusStrip.TabIndex = 2;
             // 
@@ -403,7 +460,7 @@
             // 
             // ControlButton
             // 
-            this.ControlButton.Location = new System.Drawing.Point(521, 219);
+            this.ControlButton.Location = new System.Drawing.Point(542, 219);
             this.ControlButton.Name = "ControlButton";
             this.ControlButton.Size = new System.Drawing.Size(75, 27);
             this.ControlButton.TabIndex = 3;
@@ -458,7 +515,7 @@
             this.ProfileGroupBox.Controls.Add(this.ProfileTable);
             this.ProfileGroupBox.Location = new System.Drawing.Point(12, 147);
             this.ProfileGroupBox.Name = "ProfileGroupBox";
-            this.ProfileGroupBox.Size = new System.Drawing.Size(584, 65);
+            this.ProfileGroupBox.Size = new System.Drawing.Size(605, 65);
             this.ProfileGroupBox.TabIndex = 13;
             this.ProfileGroupBox.TabStop = false;
             this.ProfileGroupBox.Text = "Profiles";
@@ -476,14 +533,20 @@
             this.ProfileTable.RowCount = 1;
             this.ProfileTable.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.ProfileTable.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.ProfileTable.Size = new System.Drawing.Size(578, 43);
+            this.ProfileTable.Size = new System.Drawing.Size(599, 43);
             this.ProfileTable.TabIndex = 0;
+            // 
+            // NatTypeStatusLabel
+            // 
+            this.NatTypeStatusLabel.Name = "NatTypeStatusLabel";
+            this.NatTypeStatusLabel.Size = new System.Drawing.Size(109, 17);
+            this.NatTypeStatusLabel.Text = "";
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.ClientSize = new System.Drawing.Size(608, 276);
+            this.ClientSize = new System.Drawing.Size(629, 276);
             this.Controls.Add(this.ProfileGroupBox);
             this.Controls.Add(this.SettingsButton);
             this.Controls.Add(this.ControlButton);
@@ -504,6 +567,9 @@
             this.MenuStrip.PerformLayout();
             this.ConfigurationGroupBox.ResumeLayout(false);
             this.ConfigurationGroupBox.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.CopyLinkPictureBox)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.DeleteModePictureBox)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.EditModePictureBox)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.SpeedPictureBox)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.DeletePictureBox)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.EditPictureBox)).EndInit();
@@ -526,7 +592,7 @@
         private System.Windows.Forms.GroupBox ConfigurationGroupBox;
         private System.Windows.Forms.Label ServerLabel;
         private System.Windows.Forms.Label ModeLabel;
-        private System.Windows.Forms.ComboBox ModeComboBox;
+        private System.Windows.Forms.SearchComboBox ModeComboBox;
         private System.Windows.Forms.ComboBox ServerComboBox;
         private System.Windows.Forms.StatusStrip StatusStrip;
         private System.Windows.Forms.ToolStripStatusLabel StatusLabel;
@@ -561,5 +627,10 @@
         private System.Windows.Forms.TextBox ProfileNameText;
         private System.Windows.Forms.GroupBox ProfileGroupBox;
         private System.Windows.Forms.TableLayoutPanel ProfileTable;
+        private System.Windows.Forms.ToolStripMenuItem ManageProcessModeToolStripMenuItem;
+        private System.Windows.Forms.PictureBox EditModePictureBox;
+        private System.Windows.Forms.PictureBox DeleteModePictureBox;
+        private System.Windows.Forms.PictureBox CopyLinkPictureBox;
+        private System.Windows.Forms.ToolStripStatusLabel NatTypeStatusLabel;
     }
 }
