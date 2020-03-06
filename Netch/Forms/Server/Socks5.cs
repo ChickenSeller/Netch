@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 namespace Netch.Forms.Server
@@ -21,12 +22,12 @@ namespace Netch.Forms.Server
 
         private void Shadowsocks_Load(object sender, EventArgs e)
         {
-            ConfigurationGroupBox.Text = Utils.i18N.Translate("Configuration");
-            RemarkLabel.Text = Utils.i18N.Translate("Remark");
-            AddressLabel.Text = Utils.i18N.Translate("Address");
-            UsernameLabel.Text = Utils.i18N.Translate("Username");
-            PasswordLabel.Text = Utils.i18N.Translate("Password");
-            ControlButton.Text = Utils.i18N.Translate("Save");
+            ConfigurationGroupBox.Text = Utils.i18N.Translate(ConfigurationGroupBox.Text);
+            RemarkLabel.Text = Utils.i18N.Translate(RemarkLabel.Text);
+            AddressLabel.Text = Utils.i18N.Translate(AddressLabel.Text);
+            UsernameLabel.Text = Utils.i18N.Translate(UsernameLabel.Text);
+            PasswordLabel.Text = Utils.i18N.Translate(PasswordLabel.Text);
+            ControlButton.Text = Utils.i18N.Translate(ControlButton.Text);
 
             if (Index != -1)
             {
@@ -70,9 +71,13 @@ namespace Netch.Forms.Server
 
         private void ControlButton_Click(object sender, EventArgs e)
         {
+            if (!Regex.Match(PortTextBox.Text, "^[0-9]+$").Success)
+            {
+                return;
+            }
             if (Index == -1)
             {
-                Global.Settings.Server.Add(new Models.Server()
+                Global.Settings.Server.Add(new Models.Server
                 {
                     Remark = RemarkTextBox.Text,
                     Type = "Socks5",
@@ -84,7 +89,7 @@ namespace Netch.Forms.Server
             }
             else
             {
-                Global.Settings.Server[Index] = new Models.Server()
+                Global.Settings.Server[Index] = new Models.Server
                 {
                     Remark = RemarkTextBox.Text,
                     Group = Global.Settings.Server[Index].Group,

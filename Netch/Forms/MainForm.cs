@@ -1,9 +1,10 @@
-﻿using Netch.Controllers;
+using Netch.Controllers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.ServiceProcess;
 using System.Threading;
 using System.Threading.Tasks;
@@ -26,17 +27,24 @@ namespace Netch.Forms
         /// <summary>
         ///     上一次上传的流量
         /// </summary>
-        public long LastUploadBandwidth = 0;
+        public long LastUploadBandwidth;
 
         /// <summary>
         ///     上一次下载的流量
         /// </summary>
-        public long LastDownloadBandwidth = 0;
+        public long LastDownloadBandwidth;
 
         /// <summary>
         ///     是否第一次打开
         /// </summary>
         public bool IsFirstOpened = true;
+
+        public List<Button> ProfileButtons = new List<Button>();
+
+        /// <summary>
+        /// 主窗体的静态实例
+        /// </summary>
+        public static MainForm Instance = null;
 
         public MainForm()
         {
@@ -45,6 +53,7 @@ namespace Netch.Forms
 
             CheckForIllegalCrossThreadCalls = false;
             // MenuStrip.Renderer = new Override.ToolStripProfessionalRender();
+            Instance = this;
         }
 
         private void CheckUpdate()
@@ -139,7 +148,7 @@ namespace Netch.Forms
 
                                 if (splited.Length >= 2)
                                 {
-                                    if (int.TryParse(splited[1], out int result))
+                                    if (int.TryParse(splited[1], out var result))
                                     {
                                         mode.Type = result;
                                     }
@@ -152,9 +161,9 @@ namespace Netch.Forms
 
                                 if (splited.Length >= 3)
                                 {
-                                    if (int.TryParse(splited[2], out int result))
+                                    if (int.TryParse(splited[2], out var result))
                                     {
-                                        mode.BypassChina = (result == 1);
+                                        mode.BypassChina = result == 1;
                                     }
                                     else
                                     {
@@ -165,7 +174,7 @@ namespace Netch.Forms
                             }
                             else
                             {
-                                if (!text.StartsWith("#") && !String.IsNullOrWhiteSpace(text))
+                                if (!text.StartsWith("#") && !string.IsNullOrWhiteSpace(text))
                                 {
                                     mode.Rule.Add(text.Trim());
                                 }
@@ -183,7 +192,7 @@ namespace Netch.Forms
                 }
 
                 var array = Global.ModeFiles.ToArray();
-                Array.Sort(array, (a, b) => String.Compare(a.Remark, b.Remark, StringComparison.Ordinal));
+                Array.Sort(array, (a, b) => string.Compare(a.Remark, b.Remark, StringComparison.Ordinal));
 
                 ModeComboBox.Items.AddRange(array);
 
@@ -196,10 +205,35 @@ namespace Netch.Forms
             ModeComboBox.Items.Clear();
             Global.ModeFiles.Add(mode);
             var array = Global.ModeFiles.ToArray();
-            Array.Sort(array, (a, b) => String.Compare(a.Remark, b.Remark, StringComparison.Ordinal));
+            Array.Sort(array, (a, b) => string.Compare(a.Remark, b.Remark, StringComparison.Ordinal));
             ModeComboBox.Items.AddRange(array);
 
             SelectLastMode();
+        }
+        public void UpdateMode(Models.Mode NewMode, Models.Mode OldMode)
+        {
+            ModeComboBox.Items.Clear();
+            Global.ModeFiles.Remove(OldMode);
+            Global.ModeFiles.Add(NewMode);
+            var array = Global.ModeFiles.ToArray();
+            Array.Sort(array, (a, b) => string.Compare(a.Remark, b.Remark, StringComparison.Ordinal));
+            ModeComboBox.Items.AddRange(array);
+
+            SelectLastMode();
+        }
+
+        private void SaveConfigs()
+        {
+            Global.Settings.ServerComboBoxSelectedIndex = ServerComboBox.SelectedIndex;
+            if (ModeComboBox.Tag is object[] list)
+            {
+                Global.Settings.ModeComboBoxSelectedIndex = list.ToList().IndexOf(ModeComboBox.SelectedItem);
+            }
+            else
+            {
+                Global.Settings.ModeComboBoxSelectedIndex = ModeComboBox.Items.IndexOf(ModeComboBox.SelectedItem);
+            }
+            Utils.Configuration.Save();
         }
 
         private void ComboBox_DrawItem(object sender, DrawItemEventArgs e)
@@ -272,32 +306,37 @@ namespace Netch.Forms
             InitMode();
 
             // 加载翻译
-            ServerToolStripMenuItem.Text = Utils.i18N.Translate("Server");
-            ImportServersFromClipboardToolStripMenuItem.Text = Utils.i18N.Translate("Import Servers From Clipboard");
-            AddSocks5ServerToolStripMenuItem.Text = Utils.i18N.Translate("Add [Socks5] Server");
-            AddShadowsocksServerToolStripMenuItem.Text = Utils.i18N.Translate("Add [Shadowsocks] Server");
-            AddShadowsocksRServerToolStripMenuItem.Text = Utils.i18N.Translate("Add [ShadowsocksR] Server");
-            AddVMessServerToolStripMenuItem.Text = Utils.i18N.Translate("Add [VMess] Server");
-            ModeToolStripMenuItem.Text = Utils.i18N.Translate("Mode");
-            CreateProcessModeToolStripMenuItem.Text = Utils.i18N.Translate("Create Process Mode");
-            SubscribeToolStripMenuItem.Text = Utils.i18N.Translate("Subscribe");
-            ManageSubscribeLinksToolStripMenuItem.Text = Utils.i18N.Translate("Manage Subscribe Links");
-            UpdateServersFromSubscribeLinksToolStripMenuItem.Text = Utils.i18N.Translate("Update Servers From Subscribe Links");
-            OptionsToolStripMenuItem.Text = Utils.i18N.Translate("Options");
-            RestartServiceToolStripMenuItem.Text = Utils.i18N.Translate("Restart Service");
-            UninstallServiceToolStripMenuItem.Text = Utils.i18N.Translate("Uninstall Service");
-            ReloadModesToolStripMenuItem.Text = Utils.i18N.Translate("Reload Modes");
-            CleanDNSCacheToolStripMenuItem.Text = Utils.i18N.Translate("Clean DNS Cache");
-            AboutToolStripButton.Text = Utils.i18N.Translate("About");
-            ConfigurationGroupBox.Text = Utils.i18N.Translate("Configuration");
-            ServerLabel.Text = Utils.i18N.Translate("Server");
-            ModeLabel.Text = Utils.i18N.Translate("Mode");
-            SettingsButton.Text = Utils.i18N.Translate("Settings");
-            ControlButton.Text = Utils.i18N.Translate("Start");
+            ServerToolStripMenuItem.Text = Utils.i18N.Translate(ServerToolStripMenuItem.Text);
+            ImportServersFromClipboardToolStripMenuItem.Text = Utils.i18N.Translate(ImportServersFromClipboardToolStripMenuItem.Text);
+            AddSocks5ServerToolStripMenuItem.Text = Utils.i18N.Translate(AddSocks5ServerToolStripMenuItem.Text);
+            AddShadowsocksServerToolStripMenuItem.Text = Utils.i18N.Translate(AddShadowsocksServerToolStripMenuItem.Text);
+            AddShadowsocksRServerToolStripMenuItem.Text = Utils.i18N.Translate(AddShadowsocksRServerToolStripMenuItem.Text);
+            AddVMessServerToolStripMenuItem.Text = Utils.i18N.Translate(AddVMessServerToolStripMenuItem.Text);
+            ModeToolStripMenuItem.Text = Utils.i18N.Translate(ModeToolStripMenuItem.Text);
+            CreateProcessModeToolStripMenuItem.Text = Utils.i18N.Translate(CreateProcessModeToolStripMenuItem.Text);
+            ManageProcessModeToolStripMenuItem.Text = Utils.i18N.Translate(ManageProcessModeToolStripMenuItem.Text);
+            SubscribeToolStripMenuItem.Text = Utils.i18N.Translate(SubscribeToolStripMenuItem.Text);
+            ManageSubscribeLinksToolStripMenuItem.Text = Utils.i18N.Translate(ManageSubscribeLinksToolStripMenuItem.Text);
+            UpdateServersFromSubscribeLinksToolStripMenuItem.Text = Utils.i18N.Translate(UpdateServersFromSubscribeLinksToolStripMenuItem.Text);
+            OptionsToolStripMenuItem.Text = Utils.i18N.Translate(OptionsToolStripMenuItem.Text);
+            RestartServiceToolStripMenuItem.Text = Utils.i18N.Translate(RestartServiceToolStripMenuItem.Text);
+            UninstallServiceToolStripMenuItem.Text = Utils.i18N.Translate(UninstallServiceToolStripMenuItem.Text);
+            ReloadModesToolStripMenuItem.Text = Utils.i18N.Translate(ReloadModesToolStripMenuItem.Text);
+            CleanDNSCacheToolStripMenuItem.Text = Utils.i18N.Translate(CleanDNSCacheToolStripMenuItem.Text);
+            AboutToolStripButton.Text = Utils.i18N.Translate(AboutToolStripButton.Text);
+            ConfigurationGroupBox.Text = Utils.i18N.Translate(ConfigurationGroupBox.Text);
+            ServerLabel.Text = Utils.i18N.Translate(ServerLabel.Text);
+            ModeLabel.Text = Utils.i18N.Translate(ModeLabel.Text);
+            ProfileLabel.Text = Utils.i18N.Translate(ProfileLabel.Text);
+            ProfileGroupBox.Text = Utils.i18N.Translate(ProfileGroupBox.Text);
+            SettingsButton.Text = Utils.i18N.Translate(SettingsButton.Text);
+            ControlButton.Text = Utils.i18N.Translate(ControlButton.Text);
             UsedBandwidthLabel.Text = $@"{Utils.i18N.Translate("Used")}{Utils.i18N.Translate(": ")}0 KB";
             StatusLabel.Text = $@"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Waiting for command")}";
-            ShowMainFormToolStripButton.Text = Utils.i18N.Translate("Show");
-            ExitToolStripButton.Text = Utils.i18N.Translate("Exit");
+            ShowMainFormToolStripButton.Text = Utils.i18N.Translate(ShowMainFormToolStripButton.Text);
+            ExitToolStripButton.Text = Utils.i18N.Translate(ExitToolStripButton.Text);
+
+            InitProfile();
 
             // 自动检测延迟
             Task.Run(() =>
@@ -368,21 +407,17 @@ namespace Netch.Forms
         private void ImportServersFromClipboardToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var texts = Clipboard.GetText();
-            if (!String.IsNullOrWhiteSpace(texts))
+            if (!string.IsNullOrWhiteSpace(texts))
             {
-                using (var sr = new StringReader(texts))
+                var result = Utils.ShareLink.Parse(texts);
+
+                if (result != null)
                 {
-                    string text;
-
-                    while ((text = sr.ReadLine()) != null)
-                    {
-                        var result = Utils.ShareLink.Parse(text);
-
-                        if (result != null)
-                        {
-                            Global.Settings.Server.AddRange(result);
-                        }
-                    }
+                    Global.Settings.Server.AddRange(result);
+                }
+                else
+                {
+                    MessageBox.Show(Utils.i18N.Translate("Import servers error!"), Utils.i18N.Translate("Error"), MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 }
 
                 InitServer();
@@ -392,37 +427,42 @@ namespace Netch.Forms
 
         private void AddSocks5ServerToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            (new Server.Socks5()).Show();
+            new Server.Socks5().Show();
             Hide();
         }
 
         private void AddShadowsocksServerToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            (new Server.Shadowsocks()).Show();
+            new Server.Shadowsocks().Show();
             Hide();
         }
 
         private void AddShadowsocksRServerToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            (new Server.ShadowsocksR()).Show();
+            new Server.ShadowsocksR().Show();
             Hide();
         }
 
         private void AddVMessServerToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            (new Server.VMess()).Show();
+            new Server.VMess().Show();
             Hide();
         }
 
         private void CreateProcessModeToolStripButton_Click(object sender, EventArgs e)
         {
-            (new Mode.Process()).Show();
+            new Mode.Process().Show();
             Hide();
+        }
+
+        private void ManageProcessModeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Utils.Utils.OpenDir(@"mode");
         }
 
         private void ManageSubscribeLinksToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            (new SubscribeForm()).Show();
+            new SubscribeForm().Show();
             Hide();
         }
 
@@ -444,11 +484,12 @@ namespace Netch.Forms
             {
                 DeletePictureBox.Enabled = false;
 
+                UpdateServersFromSubscribeLinksToolStripMenuItem.Enabled = false;
                 Task.Run(() =>
                 {
                     if (Global.Settings.UseProxyToUpdateSubscription)
                     {
-                        var mode = new Models.Mode()
+                        var mode = new Models.Mode
                         {
                             Remark = "ProxyUpdate",
                             Type = 5
@@ -458,69 +499,59 @@ namespace Netch.Forms
                     }
                     foreach (var item in Global.Settings.SubscribeLink)
                     {
-                        using (var client = new Override.WebClient())
+                        using var client = new Override.WebClient();
+                        try
                         {
+                            if (!string.IsNullOrEmpty(item.UserAgent))
+                            {
+                                client.Headers.Add("User-Agent", item.UserAgent);
+                            }
+                            else
+                            {
+                                client.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.90 Safari/537.36");
+                            }
+
+                            if (Global.Settings.UseProxyToUpdateSubscription)
+                            {
+                                client.Proxy = new System.Net.WebProxy($"http://127.0.0.1:{Global.Settings.HTTPLocalPort}");
+                            }
+
+                            var response = client.DownloadString(item.Link);
+
                             try
                             {
-                                if (!String.IsNullOrEmpty(item.UserAgent))
-                                {
-                                    client.Headers.Add("User-Agent", item.UserAgent);
-                                }
-                                else
-                                {
-                                    client.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.90 Safari/537.36");
-                                }
-
-                                if (Global.Settings.UseProxyToUpdateSubscription)
-                                {
-                                    client.Proxy = new System.Net.WebProxy($"http://127.0.0.1:{Global.Settings.HTTPLocalPort}");
-                                }
-
-                                var response = client.DownloadString(item.Link);
-
-                                try
-                                {
-                                    response = Utils.ShareLink.URLSafeBase64Decode(response);
-                                }
-                                catch (Exception)
-                                {
-                                    // 跳过
-                                }
-
-                                var list = new List<Models.Server>();
-                                foreach (var server in Global.Settings.Server)
-                                {
-                                    if (server.Group != item.Remark)
-                                    {
-                                        list.Add(server);
-                                    }
-                                }
-                                Global.Settings.Server = list;
-
-                                using (var sr = new StringReader(response))
-                                {
-                                    string text;
-
-                                    while ((text = sr.ReadLine()) != null)
-                                    {
-                                        var result = Utils.ShareLink.Parse(text);
-
-                                        if (result != null)
-                                        {
-                                            foreach (var x in result)
-                                            {
-                                                x.Group = item.Remark;
-                                            }
-
-                                            Global.Settings.Server.AddRange(result);
-                                        }
-                                    }
-                                }
+                                response = Utils.ShareLink.URLSafeBase64Decode(response);
                             }
                             catch (Exception)
                             {
-                                continue;
+                                // 跳过
                             }
+
+                            Global.Settings.Server = Global.Settings.Server.Where(server => server.Group != item.Remark).ToList();
+                            var result = Utils.ShareLink.Parse(response);
+
+                            if (result != null)
+                            {
+                                foreach (var x in result)
+                                {
+                                    x.Group = item.Remark;
+                                }
+                                Global.Settings.Server.AddRange(result);
+                                NotifyIcon.ShowBalloonTip(5,
+                                        UpdateChecker.Name,
+                                        string.Format(Utils.i18N.Translate("Update {1} server(s) from {0}"), item.Remark, result.Count),
+                                        ToolTipIcon.Info);
+                            }
+                            else
+                            {
+                                NotifyIcon.ShowBalloonTip(5,
+                                        UpdateChecker.Name,
+                                        string.Format(Utils.i18N.Translate("Update servers error from {0}"), item.Remark),
+                                        ToolTipIcon.Error);
+                            }
+                        }
+                        catch (Exception)
+                        {
                         }
                     }
 
@@ -531,12 +562,21 @@ namespace Netch.Forms
                         MenuStrip.Enabled = ConfigurationGroupBox.Enabled = ControlButton.Enabled = SettingsButton.Enabled = true;
                         ControlButton.Text = Utils.i18N.Translate("Start");
                         MainController.Stop();
+                        NatTypeStatusLabel.Text = "";
                     }
-                    MessageBox.Show(this, Utils.i18N.Translate("Update completed"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                     Utils.Configuration.Save();
+                }).ContinueWith(task =>
+                {
+                    BeginInvoke(new Action(() =>
+                    {
+                        UpdateServersFromSubscribeLinksToolStripMenuItem.Enabled = true;
+                    }));
                 });
 
-                MessageBox.Show(Utils.i18N.Translate("Updating in the background"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                NotifyIcon.ShowBalloonTip(5,
+                        UpdateChecker.Name,
+                        Utils.i18N.Translate("Updating in the background"),
+                        ToolTipIcon.Info);
             }
             else
             {
@@ -611,7 +651,7 @@ namespace Netch.Forms
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show(this, Utils.i18N.Translate("Error") + Utils.i18N.Translate(": ") + ex.ToString(), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show(this, Utils.i18N.Translate("Error") + Utils.i18N.Translate(": ") + ex, Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                 }
                 else
@@ -626,6 +666,7 @@ namespace Netch.Forms
         private void ReloadModesToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Enabled = false;
+            SaveConfigs();
             Task.Run(() =>
             {
                 InitMode();
@@ -655,22 +696,23 @@ namespace Netch.Forms
 
         private void EditPictureBox_Click(object sender, EventArgs e)
         {
+            SaveConfigs();
             // 当前ServerComboBox中至少有一项
             if (ServerComboBox.SelectedIndex != -1)
             {
                 switch (Global.Settings.Server[ServerComboBox.SelectedIndex].Type)
                 {
                     case "Socks5":
-                        (new Server.Socks5(ServerComboBox.SelectedIndex)).Show();
+                        new Server.Socks5(ServerComboBox.SelectedIndex).Show();
                         break;
                     case "SS":
-                        (new Server.Shadowsocks(ServerComboBox.SelectedIndex)).Show();
+                        new Server.Shadowsocks(ServerComboBox.SelectedIndex).Show();
                         break;
                     case "SSR":
-                        (new Server.ShadowsocksR(ServerComboBox.SelectedIndex)).Show();
+                        new Server.ShadowsocksR(ServerComboBox.SelectedIndex).Show();
                         break;
                     case "VMess":
-                        (new Server.VMess(ServerComboBox.SelectedIndex)).Show();
+                        new Server.VMess(ServerComboBox.SelectedIndex).Show();
                         break;
                     default:
                         return;
@@ -696,7 +738,7 @@ namespace Netch.Forms
 
                 if (ServerComboBox.Items.Count > 0)
                 {
-                    ServerComboBox.SelectedIndex = (index != 0) ? index - 1 : index;
+                    ServerComboBox.SelectedIndex = index != 0 ? index - 1 : index;
                 }
                 Utils.Configuration.Save();
             }
@@ -751,12 +793,32 @@ namespace Netch.Forms
                     var mode = ModeComboBox.SelectedItem as Models.Mode;
 
                     MainController = new MainController();
-                    if (MainController.Start(server, mode))
+
+                    var startResult = MainController.Start(server, mode);
+
+                    if (startResult)
                     {
-                        if (mode.Type == 0)
+                        // UsedBandwidthLabel.Visible = UploadSpeedLabel.Visible = DownloadSpeedLabel.Visible = true;
+                        // MainController.pNFController.OnBandwidthUpdated += OnBandwidthUpdated;
+
+                        // 如果勾选启动后最小化
+                        if (Global.Settings.MinimizeWhenStarted)
                         {
-                            UsedBandwidthLabel.Visible = UploadSpeedLabel.Visible = DownloadSpeedLabel.Visible = true;
-                            MainController.pNFController.OnBandwidthUpdated += OnBandwidthUpdated;
+                            WindowState = FormWindowState.Minimized;
+                            NotifyIcon.Visible = true;
+
+                            if (IsFirstOpened)
+                            {
+                                // 显示提示语
+                                NotifyIcon.ShowBalloonTip(5,
+                                UpdateChecker.Name,
+                                Utils.i18N.Translate("Netch is now minimized to the notification bar, double click this icon to restore."),
+                                ToolTipIcon.Info);
+
+                                IsFirstOpened = false;
+                            }
+
+                            Hide();
                         }
 
                         ControlButton.Enabled = true;
@@ -821,24 +883,28 @@ namespace Netch.Forms
                 StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Stopping")}";
                 State = Models.State.Stopping;
 
+                MenuStrip.Enabled = ConfigurationGroupBox.Enabled = SettingsButton.Enabled = true;
+
+                ProfileGroupBox.Enabled = false;
+
                 Task.Run(() =>
                 {
                     var server = ServerComboBox.SelectedItem as Models.Server;
                     var mode = ModeComboBox.SelectedItem as Models.Mode;
 
                     MainController.Stop();
+                    NatTypeStatusLabel.Text = "";
 
-                    if (mode.Type == 0)
-                    {
-                        LastUploadBandwidth = 0;
-                        LastDownloadBandwidth = 0;
-                        UploadSpeedLabel.Text = "↑: 0 KB/s";
-                        DownloadSpeedLabel.Text = "↓: 0 KB/s";
-                        UsedBandwidthLabel.Text = $"{Utils.i18N.Translate("Used")}{Utils.i18N.Translate(": ")}0 KB";
-                        UsedBandwidthLabel.Visible = UploadSpeedLabel.Visible = DownloadSpeedLabel.Visible = false;
-                    }
+                    // LastUploadBandwidth = 0;
+                    // LastDownloadBandwidth = 0;
+                    // UploadSpeedLabel.Text = "↑: 0 KB/s";
+                    // DownloadSpeedLabel.Text = "↓: 0 KB/s";
+                    // UsedBandwidthLabel.Text = $"{Utils.i18N.Translate("Used")}{Utils.i18N.Translate(": ")}0 KB";
+                    // UsedBandwidthLabel.Visible = UploadSpeedLabel.Visible = DownloadSpeedLabel.Visible = false;
 
-                    MenuStrip.Enabled = ConfigurationGroupBox.Enabled = ControlButton.Enabled = SettingsButton.Enabled = true;
+                    ControlButton.Enabled = true;
+                    ProfileGroupBox.Enabled = true;
+
                     ControlButton.Text = Utils.i18N.Translate("Start");
                     StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Stopped")}";
                     State = Models.State.Stopped;
@@ -879,15 +945,11 @@ namespace Netch.Forms
                     return;
                 }
                 // 否则直接调用停止按钮的方法
-                else
-                {
-                    ControlButton_Click(sender, e);
-                }
+
+                ControlButton_Click(sender, e);
             }
 
-            Global.Settings.ServerComboBoxSelectedIndex = ServerComboBox.SelectedIndex;
-            Global.Settings.ModeComboBoxSelectedIndex = ModeComboBox.SelectedIndex;
-            Utils.Configuration.Save();
+            SaveConfigs();
 
             State = Models.State.Terminating;
             NotifyIcon.Visible = false;
@@ -916,7 +978,7 @@ namespace Netch.Forms
 
         private void AboutToolStripButton_Click(object sender, EventArgs e)
         {
-            (new AboutForm()).Show();
+            new AboutForm().Show();
             Hide();
         }
 
@@ -929,6 +991,234 @@ namespace Netch.Forms
             LastUploadBandwidth = upload;
             LastDownloadBandwidth = download;
             Refresh();
+        }
+
+        private void ProfileButton_Click(object sender, EventArgs e)
+        {
+            var index = ProfileButtons.IndexOf((Button)sender);
+
+            //Utils.Logging.Info(String.Format("Button no.{0} clicked", index));
+
+            if (ModifierKeys == Keys.Control)
+            {
+                if (ServerComboBox.SelectedIndex == -1)
+                {
+                    MessageBox.Show(Utils.i18N.Translate("Please select a server first"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                else if (ModeComboBox.SelectedIndex == -1)
+                {
+                    MessageBox.Show(Utils.i18N.Translate("Please select an mode first"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                else
+                {
+                    SaveProfile(index);
+                    ProfileButtons[index].Text = ProfileNameText.Text;
+                }
+            }
+            else
+            {
+                try
+                {
+                    ProfileNameText.Text = LoadProfile(index);
+
+                    // start the profile
+                    var need2ndStart = true;
+                    if (State == Models.State.Waiting || State == Models.State.Stopped)
+                    {
+                        need2ndStart = false;
+                    }
+
+                    ControlButton.PerformClick();
+
+                    if (need2ndStart)
+                    {
+                        Task.Run(() =>
+                        {
+                            while (State != Models.State.Stopped)
+                            {
+                                Thread.Sleep(200);
+                            }
+
+                            ControlButton.PerformClick();
+                        });
+                    }
+                }
+                catch (Exception ee)
+                {
+                    Task.Run(() =>
+                    {
+                        Utils.Logging.Info(ee.Message);
+                        ProfileButtons[index].Text = Utils.i18N.Translate("Error");
+                        Thread.Sleep(1200);
+                        ProfileButtons[index].Text = Utils.i18N.Translate("None");
+                    });
+                }
+
+            }
+
+
+        }
+
+        public void InitProfile()
+        {
+            var num_profile = Global.Settings.ProfileCount;
+            ProfileTable.ColumnCount = num_profile;
+
+            while (Global.Settings.profiles.Count < num_profile)
+            {
+                Global.Settings.profiles.Add(new Models.Profile());
+            }
+
+            // buttons
+            for (var i = 0; i < num_profile; ++i)
+            {
+                var b = new Button();
+                ProfileTable.Controls.Add(b, i, 0);
+                b.Location = new Point(i * 100, 0);
+                b.Click += ProfileButton_Click;
+                b.Dock = DockStyle.Fill;
+                b.Text = "None";
+                ProfileButtons.Add(b);
+
+                if (!Global.Settings.profiles[i].IsDummy)
+                {
+                    b.Text = Global.Settings.profiles[i].ProfileName;
+                }
+                else
+                {
+                    b.Text = Utils.i18N.Translate(b.Text);
+                }
+            }
+
+            // equal column
+            ProfileTable.ColumnStyles.Clear();
+            for (var i = 1; i <= ProfileTable.RowCount; i++)
+            {
+                ProfileTable.RowStyles.Add(new RowStyle(SizeType.Percent, 1));
+            }
+            for (var i = 1; i <= ProfileTable.ColumnCount; i++)
+            {
+                ProfileTable.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 1));
+            }
+        }
+
+        private string LoadProfile(int index)
+        {
+            var p = Global.Settings.profiles[index];
+
+            if (p.IsDummy)
+                throw new Exception("Profile not found.");
+
+            var result = false;
+
+            foreach (Models.Server server in ServerComboBox.Items)
+            {
+                if (server.Remark.Equals(p.ServerRemark))
+                {
+                    ServerComboBox.SelectedItem = server;
+                    result = true;
+                    break;
+                }
+            }
+
+            if (!result)
+                throw new Exception("Server not found.");
+
+            result = false;
+            foreach (Models.Mode mode in ModeComboBox.Items)
+            {
+                if (mode.Remark.Equals(p.ModeRemark))
+                {
+                    ModeComboBox.SelectedItem = mode;
+                    result = true;
+                    break;
+                }
+            }
+
+            if (!result)
+                throw new Exception("Mode not found.");
+
+            return p.ProfileName;
+        }
+
+        private void SaveProfile(int index)
+        {
+            var selectedServer = (Models.Server)ServerComboBox.SelectedItem;
+            var selectedMode = (Models.Mode)ModeComboBox.SelectedItem;
+            var name = ProfileNameText.Text;
+
+            Global.Settings.profiles[index] = new Models.Profile(selectedServer, selectedMode, name);
+
+        }
+
+        private void EditModePictureBox_Click(object sender, EventArgs e)
+        {
+            // 当前ModeComboBox中至少有一项
+            if (ModeComboBox.Items.Count > 0 && ModeComboBox.SelectedIndex != -1)
+            {
+                SaveConfigs();
+                var selectedMode = (Models.Mode)ModeComboBox.SelectedItem;
+                // 只允许修改进程加速的模式
+                if (selectedMode.Type == 0)
+                {
+                    //Process.Start(Environment.CurrentDirectory + "\\mode\\" + selectedMode.FileName + ".txt");
+                    Mode.Process process = new Mode.Process(selectedMode);
+                    process.Text = "Edit Process Mode";
+                    process.Show();
+                    Hide();
+                }
+            }
+            else
+            {
+                MessageBox.Show(Utils.i18N.Translate("Please select an mode first"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+
+        private void DeleteModePictureBox_Click(object sender, EventArgs e)
+        {
+            // 当前ModeComboBox中至少有一项
+            if (ModeComboBox.Items.Count > 0 && ModeComboBox.SelectedIndex != -1)
+            {
+                var selectedMode = (Models.Mode)ModeComboBox.SelectedItem;
+
+                //删除模式文件
+                selectedMode.DeleteFile("mode");
+
+                ModeComboBox.Items.Clear();
+                Global.ModeFiles.Remove(selectedMode);
+                var array = Global.ModeFiles.ToArray();
+                Array.Sort(array, (a, b) => string.Compare(a.Remark, b.Remark, StringComparison.Ordinal));
+                ModeComboBox.Items.AddRange(array);
+
+                SelectLastMode();
+                Utils.Configuration.Save();
+            }
+            else
+            {
+                MessageBox.Show(Utils.i18N.Translate("Please select an mode first"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+
+        private void CopyLinkPictureBox_Click(object sender, EventArgs e)
+        {
+            // 当前ServerComboBox中至少有一项
+            if (ServerComboBox.SelectedIndex != -1)
+            {
+                var selectedMode = (Models.Server)ServerComboBox.SelectedItem;
+                Clipboard.SetText(Utils.ShareLink.GetShareLink(selectedMode));
+            }
+            else
+            {
+                MessageBox.Show(Utils.i18N.Translate("Please select a server first"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+        public void StatusText(string text)
+        {
+            StatusLabel.Text = text;
+        }
+        public void NatTypeStatusText(string text)
+        {
+            NatTypeStatusLabel.Text = "NatType:" + text;
         }
     }
 }
