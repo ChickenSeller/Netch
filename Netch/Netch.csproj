@@ -95,6 +95,7 @@
       <HintPath>..\packages\System.Buffers.4.5.0\lib\netstandard2.0\System.Buffers.dll</HintPath>
     </Reference>
     <Reference Include="System.Core" />
+    <Reference Include="System.Management" />
     <Reference Include="System.ServiceProcess" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
@@ -214,6 +215,7 @@
     <Compile Include="3rd\DNS\Server\DnsServer.cs" />
     <Compile Include="3rd\DNS\Server\MasterFile.cs" />
     <Compile Include="3rd\NFSDK2\nfapinet.cs" />
+    <Compile Include="Controllers\ChinaDnsController.cs" />
     <Compile Include="Controllers\DNSController.cs" />
     <Compile Include="Controllers\HTTPController.cs" />
     <Compile Include="Controllers\MainController.cs" />
@@ -314,6 +316,7 @@
     <Compile Include="3rd\FS\FolderSelect.cs" />
     <Compile Include="Utils\DNS.cs" />
     <Compile Include="Utils\i18N.cs" />
+    <Compile Include="Utils\LocalDnsUtil.cs" />
     <Compile Include="Utils\Logging.cs" />
     <Compile Include="3rd\FS\Reflector.cs" />
     <Compile Include="Resolver.cs" />

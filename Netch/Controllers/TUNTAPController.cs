@@ -35,6 +35,8 @@ namespace Netch.Controllers
         /// </summary>
         public DNSController pDNSController = new DNSController();
 
+        public ChinaDnsController chinaDnsController;
+
         /// <summary>
         ///     配置 TUNTAP 适配器
         /// </summary>
@@ -290,7 +292,9 @@ namespace Netch.Controllers
             }
             else
             {
-                pDNSController.Start();
+                //pDNSController.Start();
+                chinaDnsController = new ChinaDnsController(Global.Adapter.Address.ToString());
+                chinaDnsController.Start();
                 dns = "127.0.0.1";
             }
 
@@ -352,6 +356,7 @@ namespace Netch.Controllers
                 //pDNSController.Stop();
                 //修复点击停止按钮后再启动，DNS服务没监听的BUG
                 ClearBypass();
+                chinaDnsController.Stop();
             }
             catch (Exception e)
             {
