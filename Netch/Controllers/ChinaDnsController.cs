@@ -61,7 +61,7 @@ namespace Netch.Controllers
                 File.Delete(Directory.GetCurrentDirectory() + "\\ts-dns.toml");
             }
             File.WriteAllText(Directory.GetCurrentDirectory() + "\\ts-dns.toml", stringBuilder.ToString());
-            Process.StartInfo.Arguments = String.Format("-c {0}", Directory.GetCurrentDirectory() + "\\ts-dns.toml");
+            Process.StartInfo.Arguments = String.Format("-c \"{0}\"", Directory.GetCurrentDirectory() + "\\ts-dns.toml");
             Process.StartInfo.CreateNoWindow = true;
             Process.StartInfo.RedirectStandardError = true;
             Process.StartInfo.RedirectStandardInput = true;
