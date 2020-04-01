@@ -102,7 +102,7 @@ namespace Netch.Controllers
         {
             if (!String.IsNullOrEmpty(e.Data))
             {
-                File.AppendAllText("logging\\tc-dns.log", String.Format("{0}\r\n", e.Data.Trim()));
+                File.AppendAllText("logging\\ts-dns.log", String.Format("{0}\r\n", e.Data.Trim()));
             }
         }
 
