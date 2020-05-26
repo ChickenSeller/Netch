@@ -439,19 +439,21 @@ namespace Netch.Utils
                     data.AlterID = vmess.aid;
 
                     data.TransferProtocol = vmess.net;
+                    /*
                     if (!Global.TransferProtocols.Contains(data.TransferProtocol))
                     {
                         Logging.Info(String.Format("不支持的 VMess 传输协议：{0}", data.TransferProtocol));
                         return null;
                     }
-
+                    */
                     data.FakeType = vmess.type;
+                    /*
                     if (!Global.FakeTypes.Contains(data.FakeType))
                     {
                         Logging.Info(String.Format("不支持的 VMess 伪装类型：{0}", data.FakeType));
                         return null;
                     }
-
+                    */
                     if(vmess.v == null || vmess.v == "1")
                     {
                         var info = vmess.host.Split(';');

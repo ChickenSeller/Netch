@@ -140,6 +140,7 @@ namespace Netch
         public static List<string> FakeTypes = new List<string>()
         {
             "none",
+            "ws",
             "http",
             "srtp",
             "utp",
